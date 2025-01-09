@@ -20,29 +20,29 @@ pip install -r requirements.txt
 
 # Cascade R-CNN
 ```
-python cascade_rcnn_detection.py --model_path cascade_rcnn_detection.py --image_path test.jpeg
+python cascade_rcnn_detection.py
 ```
 # EfficientDet
 ```
-python efficientdet_detection.py --model_path efficientdet_detection.py --image_path test.jpeg
+python efficientdet_detection.py
 ```
 # Faster R-CNN
 ```
-python faster_rcnn_detection.py --model_path faster_rcnn_detection.py --image_path test.jpeg
+python faster_rcnn_detection.py
 ```
 # Mask R-CNN
 ```
-python mask_rcnn_detection.py --model_path mask_rcnn_detection.py --image_path test.jpeg
+python mask_rcnn_detection.py
 ```
 # RetinaNet
 ```
-python retinanet_detection.py --model_path retinanet_detection.py --image_path test.jpeg
+python retinanet_detection.py
 ```
 # Sparse R-CNN
 ```
-python sparse_rcnn_detection.py --model_path sparse_rcnn_detection.py --image_path test.jpeg
+python sparse_rcnn_detection.py
 ```
 # YOLO-NAS
 ```
-python yolonas_detection.py --model_path yolonas_detection.py --image_path test.jpeg
+python yolonas_detection.py
 ```
