@@ -6,62 +6,64 @@ from PIL import Image
 from torchvision import models
 import numpy as np
 
-# Load the pre-trained Sparse R-CNN model from the official repository
-# Download the Sparse R-CNN pre-trained weights
-# You can change the model URL to point to the official pre-trained model when available
-
+# Load the pre-trained Faster R-CNN model as a proxy for Sparse R-CNN
 class SparseRCNNModel(torch.nn.Module):
     def __init__(self, pretrained=True):
         super(SparseRCNNModel, self).__init__()
-        # You can implement or modify Sparse R-CNN layers here as needed.
-        # For simplicity, we are using a simple Faster R-CNN implementation for illustration purposes.
+        # Using Faster R-CNN with ResNet50 backbone and FPN
         self.model = models.detection.fasterrcnn_resnet50_fpn(pretrained=pretrained)
 
     def forward(self, images):
         return self.model(images)
 
-# Initialize the model
+# Initialize and load the model
 def load_model():
     model = SparseRCNNModel(pretrained=True)
-    model.eval()
+    model.eval()  # Set model to evaluation mode
     return model
 
-# Preprocess the input image
+# Preprocess the input image for the model
 def preprocess_image(image_path):
-    # Open image and convert to RGB
+    # Load the image and convert it to RGB
     image = Image.open(image_path).convert("RGB")
     transform = T.Compose([
-        T.ToTensor(),
+        T.ToTensor(),  # Convert image to a PyTorch tensor
     ])
     image_tensor = transform(image).unsqueeze(0)  # Add batch dimension
     return image_tensor
 
-# Post-process the output and draw bounding boxes
+# Post-process and visualize the output
 def postprocess_and_draw(image_path, outputs):
-    # Load the image using OpenCV
+    # Load the original image using OpenCV
     image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert to RGB for visualization
     
-    # Get the detections
+    # Extract bounding boxes, labels, and scores
     boxes = outputs[0]['boxes'].cpu().detach().numpy()
     labels = outputs[0]['labels'].cpu().detach().numpy()
     scores = outputs[0]['scores'].cpu().detach().numpy()
 
-    # Set a threshold for object detection confidence
-    threshold = 0.5  # You can adjust this as needed
-    for box, score in zip(boxes, scores):
+    # Set a confidence threshold for displaying detections
+    threshold = 0.5
+    for box, label, score in zip(boxes, labels, scores):
         if score > threshold:
-            # Draw a bounding box around the detected object
-            x1, y1, x2, y2 = box
-            cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+            # Draw the bounding box
+            x1, y1, x2, y2 = map(int, box)
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            
+            # Add the label and confidence score
+            label_text = f"Label {label}: {score:.2f}"
+            cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     # Display the image with bounding boxes
-    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.figure(figsize=(10, 10))
+    plt.imshow(image)
     plt.axis('off')
     plt.show()
 
-# Main function to run object detection
+# Main function to detect objects in the image
 def detect_objects(image_path):
-    # Load the model
+    # Load the pre-trained model
     model = load_model()
     
     # Preprocess the image
@@ -71,9 +73,9 @@ def detect_objects(image_path):
     with torch.no_grad():
         outputs = model(image_tensor)
     
-    # Post-process and display results
+    # Visualize the results
     postprocess_and_draw(image_path, outputs)
 
-# Test the script with an image
-image_path = "test.jpeg"  # Replace with your image path
+# Test the script on a sample image
+image_path = "test.jpeg"  # Replace with the path to your test image
 detect_objects(image_path)
